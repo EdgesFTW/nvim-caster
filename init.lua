@@ -124,6 +124,11 @@ vim.opt.breakindent = true
 -- Save undo history
 vim.opt.undofile = true
 
+-- set shell for non-posix compliant default shells
+-- set shell=/bin/bash
+-- shell = '/bin/bash'
+vim.opt.shell = '/bin/bash'
+
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -156,6 +161,9 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
+
+-- Conceal level for markdown UIs
+vim.opt.conceallevel = 1
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -321,6 +329,7 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>o', group = '[O]bsidian' },
       },
     },
   },
@@ -645,8 +654,11 @@ require('lazy').setup({
       -- Hyprlang LSP
       vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
         pattern = { '*.hl', 'hypr*.conf' },
-        callback = function(event)
-          print(string.format('starting hyprls for %s', vim.inspect(event)))
+        callback = function()
+          -- print(string.format('starting hyprls for %s', vim.inspect(event)))
+          vim.cmd.TSBufEnable 'highlight'
+          vim.cmd.TSBufEnable 'indent'
+          vim.cmd.TSBufEnable 'incremental_selection'
           vim.lsp.start {
             name = 'hyprlang',
             cmd = { 'hyprls' },
@@ -658,6 +670,22 @@ require('lazy').setup({
       vim.filetype.add {
         pattern = { ['.*/hypr/.*%.conf'] = 'hyprlang' },
       }
+      vim.filetype.add {
+        pattern = { ['.*/hypr/.*/.*%.conf'] = 'hyprlang' },
+      }
+
+      vim.filetype.add {
+        pattern = { ['.*.nu'] = 'nu' },
+      }
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+        pattern = { '*.nu' },
+        callback = function(event)
+          print(string.format('starting nu treesitter for %s', vim.inspect(event)))
+          vim.cmd.TSBufEnable 'highlight'
+          vim.cmd.TSBufEnable 'indent'
+          vim.cmd.TSBufEnable 'incremental_selection'
+        end,
+      })
 
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
@@ -907,15 +935,16 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'hyprlang', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'rust', 'nu', 'bash', 'c', 'diff', 'html', 'hyprlang', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
         enable = true,
+        disable = {},
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = { 'ruby', 'nu' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -937,11 +966,11 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
