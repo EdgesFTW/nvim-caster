@@ -51,6 +51,10 @@ return {
     opts = {
       workspaces = {
         {
+          name = 'GradS3',
+          path = '/home/edges/OneDrive/Obsidian/Grad S3',
+        },
+        {
           name = 'GradS2',
           path = '/home/edges/OneDrive/Obsidian/Grad S2',
         },
