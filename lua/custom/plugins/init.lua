@@ -179,7 +179,8 @@ return {
             schema = {
               model = {
                 -- default = 'llama3.2-vision:latest',
-                default = 'qwen2.5-coder:32b',
+                -- default = 'qwen2.5-coder:32b',
+                default = 'qwen2.5-coder:14b',
               },
               -- num_ctx = {
               --   default = 16384,
@@ -198,9 +199,25 @@ return {
     config = true,
     init = function() -- This is the function that runs, AFTER loading
       vim.keymap.set('n', '<leader>ai', vim.cmd.CodeCompanion, { desc = '[A]rtificial [I]nteligence' })
-      vim.keymap.set('n', '<leader>ac', vim.cmd.CodeCompanionChat, { desc = '[A]rtificial Inteligence [C]hat' })
+      vim.keymap.set('n', '<leader>ah', vim.cmd.CodeCompanionChat, { desc = '[A]rtificial Inteligence C[h]at' })
       vim.keymap.set('n', '<leader>aa', vim.cmd.CodeCompanionActions, { desc = '[A]rtificial Inteligence [A]ctions' })
     end,
   },
   { 'github/copilot.vim' },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    dependencies = {
+      { 'github/copilot.vim' }, -- or zbirenbaum/copilot.lua
+      { 'nvim-lua/plenary.nvim', branch = 'master' }, -- for curl, log and async functions
+    },
+    build = 'make tiktoken', -- Only on MacOS or Linux
+    opts = {
+      -- See Configuration section for options
+    },
+    -- See Commands section for default commands if you want to lazy load on them
+    init = function() -- This is the function that runs, AFTER loading
+      -- You can use any of the following commands to open Copilot Chat:
+      vim.keymap.set('n', '<leader>ac', vim.cmd.CopilotChat, { desc = '[A]rtificial Inteligence [C]opilot chat' })
+    end,
+  },
 }
